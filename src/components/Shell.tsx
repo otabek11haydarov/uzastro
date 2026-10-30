@@ -71,12 +71,44 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (loading || !profile) {
+  if (loading) {
     return (
       <>
         <Starfield />
         <div className="relative z-10 flex min-h-screen items-center justify-center">
           <Spinner label="Koinotga ulanmoqda..." />
+        </div>
+      </>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <>
+        <Starfield />
+        <div className="relative z-10 flex min-h-screen items-center justify-center p-4">
+          <div className="glass max-w-md p-6 text-center">
+            <h2 className="text-xl font-bold text-snow">Profil yuklanmadi</h2>
+            <p className="mt-2 text-sm text-snow/70">
+              Supabase ma&apos;lumotlar bazasida SQL sxema (jadvallar) hali ishga tushirilmagan bo&apos;lishi mumkin.
+            </p>
+            <div className="mt-6 flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="btn-primary w-full py-2.5"
+              >
+                Qayta yuklash
+              </button>
+              <button
+                type="button"
+                onClick={() => signOut()}
+                className="rounded-xl border border-white/10 py-2.5 text-sm text-snow/70 hover:bg-white/5"
+              >
+                Chiqish (Sign Out)
+              </button>
+            </div>
+          </div>
         </div>
       </>
     );

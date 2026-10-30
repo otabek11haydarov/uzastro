@@ -56,15 +56,31 @@ export default function AppProvider({ children }: { children: React.ReactNode })
   }, []);
 
   const loadProfile = useCallback(async (uid: string) => {
-    const sb = getSupabase();
-    const { data } = await sb.from("profiles").select("*").eq("id", uid).maybeSingle();
-    if (data) {
-      const p = data as Profile;
-      if (lastLevel.current !== null && p.level > lastLevel.current) setLevelUp(p.level);
-      lastLevel.current = p.level;
-      setProfile(p);
+    try {
+      const sb = getSupabase();
+      const { data } = await sb.from("profiles").select("*").eq("id", uid).maybeSingle();
+      if (data) {
+        const p = data as Profile;
+        if (lastLevel.current !== null && p.level > lastLevel.current) setLevelUp(p.level);
+        lastLevel.current = p.level;
+        setProfile(p);
+      } else {
+        const meta = user?.user_metadata || {};
+        const uname = (meta.username as string) || `astronavt_${uid.slice(0, 6)}`;
+        const dname = (meta.display_name as string) || uname;
+        const { data: created } = await sb
+          .from("profiles")
+          .insert({ id: uid, username: uname, display_name: dname })
+          .select()
+          .maybeSingle();
+        if (created) {
+          setProfile(created as Profile);
+        }
+      }
+    } catch (e) {
+      console.error("Profilni yuklashda xatolik:", e);
     }
-  }, []);
+  }, [user]);
 
   const refreshUnread = useCallback(async () => {
     if (!user) return;

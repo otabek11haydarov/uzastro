@@ -793,3 +793,14 @@ insert into public.space_events (kind,title,description,starts_on,note) values
 ('meteor','Kvadrantidlar meteor oqimi','Yangi yilning birinchi yirik meteor oqimi; cho''qqisi juda qisqa muddatli.','2027-01-03'::date,'Cho''qqi sanasi taxminiy; aniq vaqtni astronomik kalendardan tekshiring.'),
 ('eclipse','To''liq Quyosh tutilishi (2027)','2027-yil 2-avgustda Shimoliy Afrika va Yaqin Sharq hududlarida to''liq Quyosh tutilishi kutilmoqda.','2027-08-02'::date,'Ko''rinish zonasi O''zbekistondan tashqarida bo''lishi mumkin; mintaqangiz uchun tekshiring.');
 
+
+-- ============================================================
+-- Avval ro'yxatdan o'tgan foydalanuvchilar uchun profillarni to'ldirish
+-- ============================================================
+insert into public.profiles (id, username, display_name)
+select
+  id,
+  coalesce(raw_user_meta_data->>'username', 'astronavt_' || substr(id::text, 1, 6)),
+  coalesce(raw_user_meta_data->>'display_name', 'Astronavt')
+from auth.users
+on conflict (id) do nothing;
